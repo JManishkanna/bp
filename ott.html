@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTT Packs | CineFlow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="cursor-follower"></div>
+
+    <nav class="navbar">
+        <div class="logo">Cine<span>Flow</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="movies.html">Movies</a></li>
+            <li><a href="theaters.html">Theaters</a></li>
+            <li><a href="ott.html" class="active">OTT Packs</a></li>
+            <li><a href="bookings.html">My Bookings</a></li>
+        </ul>
+        <button class="btn-primary" onclick="location.href='login.html'">Sign In</button>
+    </nav>
+
+    <header class="page-header">
+        <h1>Stream Anywhere</h1>
+        <p>Get unlimited access to exclusive content with our premium OTT bundles.</p>
+    </header>
+
+    <section class="ott-container" id="ott-container">
+        <!-- OTT Pack cards will be injected via JS -->
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Cine<span>Flow</span></div>
+            <p>&copy; 2025 CineFlow. Experience future entertainment.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>

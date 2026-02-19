@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | CineFlow</title>
+    <meta name="description" content="Sign in to CineFlow and unlock your cinematic universe.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Variables ────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00f2ff;
+            --secondary: #7000ff;
+            --accent: #ff003c;
+            --bg: #06060a;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            --dim: rgba(255, 255, 255, 0.45);
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        /* ── Canvas background ─────────────────────────────────── */
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* ── Film-strip sides ─────────────────────────────────── */
+        .film-strip {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 56px;
+            background: #0d0d0d;
+            border: 1px solid #1a1a1a;
+            z-index: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 6px;
+            animation: stripScroll 3s linear infinite;
+        }
+
+        .film-strip.left {
+            left: 0;
+        }
+
+        .film-strip.right {
+            right: 0;
+            animation-direction: reverse;
+        }
+
+        .film-hole {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            background: var(--bg);
+            border: 1px solid #222;
+            flex-shrink: 0;
+        }
+
+        @keyframes stripScroll {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(calc(-100% + 100vh));
+            }
+        }
+
+        /* ── Scene wrapper ────────────────────────────────────── */
+        .scene {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            padding: 70px;
+            perspective: 1200px;
+        }
+
+        /* ── Logo ─────────────────────────────────────────────── */
+        .logo-wrap {
+            text-align: center;
+            animation: floatY 4s ease-in-out infinite;
+        }
+
+        .logo-wrap .logo-text {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .logo-wrap .logo-text span {
+            color: var(--primary);
+        }
+
+        .logo-wrap p {
+            font-size: 0.85rem;
+            color: var(--dim);
+            letter-spacing: 3px;
+            margin-top: 4px;
+        }
+
+        @keyframes floatY {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* ── 3-D Card ─────────────────────────────────────────── */
+        .card-scene {
+            width: 420px;
+            height: 600px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .card-scene.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            padding: 2.2rem 2.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+
+            background: rgba(10, 10, 18, 0.75);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            box-shadow:
+                0 0 0 1px rgba(0, 242, 255, 0.06),
+                0 40px 80px rgba(0, 0, 0, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .card-face.back {
+            transform: rotateY(180deg);
+        }
+
+        /* decorative corner glow */
+        .card-face::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            height: 3px;
+            border-radius: 28px 28px 0 0;
+            background: linear-gradient(90deg, var(--secondary), var(--primary), var(--accent));
+        }
+
+        /* ── Card title ───────────────────────────────────────── */
+        .card-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+        }
+
+        .card-title span {
+            color: var(--primary);
+        }
+
+        .card-sub {
+            font-size: 0.82rem;
+            color: var(--dim);
+            margin-top: 0.3rem;
+        }
+
+        /* ── Input group ──────────────────────────────────────── */
+        .input-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--dim);
+        }
+
+        .input-group input {
+            padding: 0.75rem 1rem 0.75rem 2.8rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 242, 255, 0.12), 0 0 20px rgba(0, 242, 255, 0.08);
+        }
+
+        .input-icon {
+            position: absolute;
+            bottom: 13px;
+            left: 12px;
+            width: 16px;
+            height: 16px;
+            color: var(--dim);
+            pointer-events: none;
+        }
+
+        /* ── Auth button ──────────────────────────────────────── */
+        .btn-auth {
+            position: relative;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            letter-spacing: 1px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 30px rgba(0, 242, 255, 0.25);
+        }
+
+        .btn-auth::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 40px rgba(0, 242, 255, 0.35);
+        }
+
+        .btn-auth:hover::after {
+            opacity: 1;
+        }
+
+        .btn-auth:active {
+            transform: translateY(0);
+        }
+
+        /* ── Divider ──────────────────────────────────────────── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.75rem;
+            color: var(--dim);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        /* ── Social buttons ───────────────────────────────────── */
+        .social-row {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 0.65rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 0.82rem;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: border-color 0.25s, background 0.25s;
+        }
+
+        .btn-social:hover {
+            border-color: var(--primary);
+            background: rgba(0, 242, 255, 0.06);
+        }
+
+        .btn-social svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ── Flip link ────────────────────────────────────────── */
+        .flip-link {
+            text-align: center;
+            font-size: 0.82rem;
+            color: var(--dim);
+        }
+
+        .flip-link button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+            font-size: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+            transition: text-shadow 0.2s;
+        }
+
+        .flip-link button:hover {
+            text-shadow: 0 0 12px var(--primary);
+        }
+
+        /* ── Floating particles (CSS-only fallback) ───────────── */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+            animation: particleDrift linear infinite;
+        }
+
+        @keyframes particleDrift {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-20vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* ── Ripple on btn click ──────────────────────────────── */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            background: rgba(255, 255, 255, 0.25);
+            animation: rippleAnim 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* ── Spinning reel decoration ─────────────────────────── */
+        .reel-wrap {
+            position: fixed;
+            bottom: -60px;
+            right: 80px;
+            z-index: 3;
+            opacity: 0.15;
+            animation: reelSpin 8s linear infinite;
+        }
+
+        @keyframes reelSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .reel-wrap svg {
+            width: 220px;
+            height: 220px;
+        }
+
+        /* ── Loading overlay on submit ────────────────────────── */
+        .btn-auth.loading .btn-label {
+            opacity: 0;
+        }
+
+        .btn-auth .spinner {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-auth.loading .spinner {
+            display: flex;
+        }
+
+        .spin-ring {
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spinRing 0.7s linear infinite;
+        }
+
+        @keyframes spinRing {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Checkbox remember ────────────────────────────────── */
+        .row-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+        }
+
+        .check-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--dim);
+            cursor: pointer;
+        }
+
+        .check-label input[type=checkbox] {
+            accent-color: var(--primary);
+            width: 14px;
+            height: 14px;
+        }
+
+        .forgot-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.78rem;
+            transition: opacity 0.2s;
+        }
+
+        .forgot-link:hover {
+            opacity: 0.7;
+        }
+
+        /* ── Error state styles ─────────────────────────────────── */
+        .input-group input.error {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px rgba(255, 0, 60, 0.15) !important;
+        }
+
+        .input-group input.valid {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 242, 255, 0.1);
+        }
+
+        .field-error {
+            font-size: 0.72rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: -2px;
+            animation: errSlideIn 0.2s ease;
+        }
+
+        @keyframes errSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Responsive ───────────────────────────────────────── */
+        @media (max-width: 480px) {
+            .card-scene {
+                width: 92vw;
+                height: auto;
+            }
+
+            .card-face {
+                padding: 2rem 1.5rem;
+            }
+
+            .film-strip {
+                width: 36px;
+            }
+
+            .reel-wrap {
+                display: none;
+            }
+
+            .scene {
+                padding: 40px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Particle canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Film strips -->
+    <div class="film-strip left" id="filmLeft">
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+    </div>
+    <div class="film-strip right" id="filmRight">
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+        <div class="film-hole"></div>
+    </div>
+
+    <!-- Spinning reel SVG -->
+    <div class="reel-wrap">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="95" stroke="#00f2ff" stroke-width="4" />
+            <circle cx="100" cy="100" r="20" stroke="#00f2ff" stroke-width="4" />
+            <circle cx="100" cy="20" r="12" fill="#00f2ff" opacity=".8" />
+            <circle cx="100" cy="180" r="12" fill="#00f2ff" opacity=".8" />
+            <circle cx="20" cy="100" r="12" fill="#00f2ff" opacity=".8" />
+            <circle cx="180" cy="100" r="12" fill="#00f2ff" opacity=".8" />
+            <circle cx="37" cy="37" r="10" fill="#7000ff" opacity=".7" />
+            <circle cx="163" cy="37" r="10" fill="#7000ff" opacity=".7" />
+            <circle cx="37" cy="163" r="10" fill="#7000ff" opacity=".7" />
+            <circle cx="163" cy="163" r="10" fill="#7000ff" opacity=".7" />
+            <line x1="100" y1="5" x2="100" y2="195" stroke="#00f2ff" stroke-width="1" opacity=".3" />
+            <line x1="5" y1="100" x2="195" y2="100" stroke="#00f2ff" stroke-width="1" opacity=".3" />
+            <line x1="29" y1="29" x2="171" y2="171" stroke="#7000ff" stroke-width="1" opacity=".3" />
+            <line x1="171" y1="29" x2="29" y2="171" stroke="#7000ff" stroke-width="1" opacity=".3" />
+        </svg>
+    </div>
+
+    <!-- Main scene -->
+    <div class="scene" id="scene">
+
+        <!-- Logo -->
+        <div class="logo-wrap">
+            <div class="logo-text">Cine<span>Flow</span></div>
+            <p>YOUR CINEMATIC UNIVERSE</p>
+        </div>
+
+        <!-- 3D Card -->
+        <div class="card-scene" id="cardScene">
+
+            <!-- LOGIN FACE -->
+            <div class="card-face front">
+                <div>
+                    <h2 class="card-title">Welcome <span>Back</span></h2>
+                    <p class="card-sub">Sign in to continue your journey</p>
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                    <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+                </div>
+
+                <div class="row-flex">
+                    <label class="check-label">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button class="btn-auth" id="loginBtn" onclick="handleLogin()">
+                    <span class="btn-label">Sign In</span>
+                    <div class="spinner">
+                        <div class="spin-ring"></div>
+                    </div>
+                </button>
+
+                <div class="divider">or continue with</div>
+
+                <div class="social-row">
+                    <button class="btn-social">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                fill="#4285F4" />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853" />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                fill="#FBBC05" />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335" />
+                        </svg>
+                        Google
+                    </button>
+                    <button class="btn-social">
+                        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" />
+                        </svg>
+                        Apple
+                    </button>
+                </div>
+
+                <p class="flip-link">New to CineFlow? <button onclick="flipCard()">Create Account</button></p>
+            </div>
+
+            <!-- SIGNUP FACE -->
+            <div class="card-face back">
+                <div>
+                    <h2 class="card-title">Join <span>CineFlow</span></h2>
+                    <p class="card-sub">Create your free account today</p>
+                </div>
+
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                    </svg>
+                    <input type="text" id="reg-name" placeholder="Your full name" autocomplete="name">
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                    <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email">
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <input type="password" id="reg-pass" placeholder="Min. 8 characters"
+                        oninput="checkStrength(this.value)">
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                </div>
+
+                <button class="btn-auth" id="registerBtn" onclick="handleRegister()">
+                    <span class="btn-label">Create Account</span>
+                    <div class="spinner">
+                        <div class="spin-ring"></div>
+                    </div>
+                </button>
+
+                <div class="divider">or sign up with</div>
+
+                <div class="social-row">
+                    <button class="btn-social">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                fill="#4285F4" />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853" />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                                fill="#FBBC05" />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335" />
+                        </svg>
+                        Google
+                    </button>
+                    <button class="btn-social">
+                        <svg viewBox="0 0 24 24" fill="white">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" />
+                        </svg>
+                        Apple
+                    </button>
+                </div>
+
+                <p class="flip-link">Already have an account? <button onclick="flipCard()">Sign In</button></p>
+            </div>
+
+        </div><!-- /card-scene -->
+    </div><!-- /scene -->
+
+    <script>
+        /* ── Canvas particle system ──────────────────────────────────── */
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H, particles = [], stars = [];
+
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        /* Stars */
+        for (let i = 0; i < 160; i++) {
+            stars.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                r: Math.random() * 1.2,
+                a: Math.random(),
+                da: (Math.random() - 0.5) * 0.008
+            });
+        }
+
+        /* Floating orbs */
+        for (let i = 0; i < 18; i++) spawnParticle();
+
+        function spawnParticle() {
+            const palette = ['#00f2ff', '#7000ff', '#ff003c', '#ffffff'];
+            particles.push({
+                x: Math.random() * W,
+                y: H + 20,
+                r: 1.5 + Math.random() * 3,
+                vy: -(0.4 + Math.random() * 0.8),
+                vx: (Math.random() - 0.5) * 0.6,
+                color: palette[Math.floor(Math.random() * palette.length)],
+                alpha: 0,
+                maxA: 0.5 + Math.random() * 0.4,
+                born: 0, lifespan: 8000 + Math.random() * 8000
+            });
+        }
+
+        /* Scanlines count */
+        let t = 0;
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            /* radial glow background */
+            const grad = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
+            grad.addColorStop(0, 'rgba(0,50,60,0.25)');
+            grad.addColorStop(0.5, 'rgba(30,0,60,0.15)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            /* stars */
+            stars.forEach(s => {
+                s.a += s.da;
+                if (s.a < 0 || s.a > 1) s.da *= -1;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,255,255,${s.a})`;
+                ctx.fill();
+            });
+
+            /* orbs */
+            t++;
+            particles.forEach((p, i) => {
+                p.born++;
+                p.x += p.vx + Math.sin(p.born * 0.02) * 0.3;
+                p.y += p.vy;
+                p.alpha = Math.min(p.alpha + 0.01, p.maxA);
+
+                if (p.y < -20 || p.born > p.lifespan) {
+                    particles.splice(i, 1);
+                    spawnParticle();
+                    return;
+                }
+
+                const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+                g.addColorStop(0, p.color.replace(')', `,${p.alpha})`).replace('rgb', 'rgba').replace('#', 'rgba(').replace(')', '').replace('rgba(0', 'rgba(0,').replace(',f', 'f'));
+
+                /* simpler approach */
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                /* trail */
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x - p.vx * 12, p.y - p.vy * 12);
+                ctx.strokeStyle = p.color;
+                ctx.globalAlpha = p.alpha * 0.4;
+                ctx.lineWidth = p.r * 0.6;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            });
+
+            /* scanlines */
+            for (let y = 0; y < H; y += 4) {
+                ctx.fillStyle = 'rgba(0,0,0,0.02)';
+                ctx.fillRect(0, y, W, 1.5);
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+
+        /* ── 3-D tilt on mouse move ──────────────────────────────────── */
+        const cardScene = document.getElementById('cardScene');
+        let isFlipped = false;
+
+        document.addEventListener('mousemove', e => {
+            if (isFlipped) return;
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            const dx = (e.clientX - cx) / cx;
+            const dy = (e.clientY - cy) / cy;
+            cardScene.style.transform = `rotateY(${dx * 10}deg) rotateX(${-dy * 8}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            if (isFlipped) return;
+            cardScene.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        });
+
+        /* ── Card flip ───────────────────────────────────────────────── */
+        function flipCard() {
+            isFlipped = !isFlipped;
+            cardScene.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+            cardScene.classList.toggle('flipped', isFlipped);
+        }
+
+        /* ── Ripple on button click ──────────────────────────────────── */
+        document.querySelectorAll('.btn-auth').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const size = Math.max(this.offsetWidth, this.offsetHeight);
+                const rect = this.getBoundingClientRect();
+                ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size / 2}px;top:${e.clientY - rect.top - size / 2}px`;
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        /* ── Password strength ───────────────────────────────────────── */
+        function checkStrength(val) {
+            const fill = document.getElementById('strengthFill');
+            if (!fill) return;
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const pct = score * 25;
+            const color = ['#ff003c', '#ff8c00', '#f7c600', '#00f2ff'][score - 1] || '#ff003c';
+            fill.style.width = `${pct}%`;
+            fill.style.background = color;
+        }
+
+        /* ── Validation helpers ──────────────────────────────────────── */
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function setFieldError(inputEl, msg) {
+            inputEl.classList.remove('valid');
+            inputEl.classList.add('error');
+            let errEl = inputEl.parentElement.querySelector('.field-error');
+            if (!errEl) {
+                errEl = document.createElement('span');
+                errEl.className = 'field-error';
+                inputEl.insertAdjacentElement('afterend', errEl);
+            }
+            errEl.innerHTML = `⚠ ${msg}`;
+        }
+
+        function clearFieldError(inputEl) {
+            inputEl.classList.remove('error');
+            const errEl = inputEl.parentElement.querySelector('.field-error');
+            if (errEl) errEl.remove();
+        }
+
+        function setFieldValid(inputEl) {
+            clearFieldError(inputEl);
+            inputEl.classList.add('valid');
+        }
+
+        /* Clear errors on typing */
+        document.querySelectorAll('.input-group input').forEach(inp => {
+            inp.addEventListener('input', () => {
+                if (inp.value.trim()) clearFieldError(inp);
+            });
+        });
+
+        /* ── LocalStorage account store ────────────────────────────────── */
+        function getAccounts() {
+            return JSON.parse(localStorage.getItem('cineflow_accounts') || '[]');
+        }
+
+        function saveAccounts(accounts) {
+            localStorage.setItem('cineflow_accounts', JSON.stringify(accounts));
+        }
+
+        function findAccount(email) {
+            return getAccounts().find(a => a.email.toLowerCase() === email.toLowerCase());
+        }
+
+        /* Simple hash (not cryptographic – demo only) */
+        function simpleHash(str) {
+            let h = 5381;
+            for (let i = 0; i < str.length; i++) h = (h * 33) ^ str.charCodeAt(i);
+            return (h >>> 0).toString(36);
+        }
+
+        /* ── Toast notification ─────────────────────────────────────────── */
+        function showToast(msg, type = 'success') {
+            const existing = document.querySelector('.cf-toast');
+            if (existing) existing.remove();
+            const t = document.createElement('div');
+            t.className = 'cf-toast';
+            t.style.cssText = `
+                position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);
+                background:${type === 'success' ? 'linear-gradient(135deg,#00f2ff,#7000ff)' : 'linear-gradient(135deg,#ff003c,#ff6b00)'};
+                color:#fff;font-family:Outfit,sans-serif;font-size:.9rem;font-weight:600;
+                padding:.75rem 1.6rem;border-radius:50px;z-index:9999;
+                box-shadow:0 8px 32px rgba(0,0,0,.5);
+                opacity:0;transition:opacity .3s ease,transform .3s ease;
+            `;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            requestAnimationFrame(() => {
+                t.style.opacity = '1';
+                t.style.transform = 'translateX(-50%) translateY(0)';
+            });
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(-50%) translateY(20px)';
+                setTimeout(() => t.remove(), 400);
+            }, 3000);
+        }
+
+        /* ── Auth handlers ─────────────────────────────────────────────── */
+        function handleLogin() {
+            const emailEl = document.getElementById('login-email');
+            const passEl = document.getElementById('login-pass');
+            let valid = true;
+
+            clearFieldError(emailEl);
+            clearFieldError(passEl);
+
+            // ── Field format checks ───────────────────────────────
+            if (!emailEl.value.trim()) {
+                setFieldError(emailEl, 'Email address is required');
+                valid = false;
+            } else if (!isValidEmail(emailEl.value.trim())) {
+                setFieldError(emailEl, 'Please enter a valid email (e.g. you@mail.com)');
+                valid = false;
+            } else {
+                setFieldValid(emailEl);
+            }
+
+            if (!passEl.value) {
+                setFieldError(passEl, 'Password is required');
+                valid = false;
+            } else if (passEl.value.length < 6) {
+                setFieldError(passEl, 'Password must be at least 6 characters');
+                valid = false;
+            } else {
+                setFieldValid(passEl);
+            }
+
+            if (!valid) { shakeCardFront(); return; }
+
+            // ── Account lookup ────────────────────────────────────
+            const account = findAccount(emailEl.value.trim());
+
+            if (!account) {
+                setFieldError(emailEl, 'No account found with this email — please create one');
+                setFieldValid(passEl);
+                shakeCardFront();
+                return;
+            }
+
+            if (account.passHash !== simpleHash(passEl.value)) {
+                setFieldError(passEl, 'Incorrect password — please try again');
+                setFieldValid(emailEl);
+                shakeCardFront();
+                return;
+            }
+
+            // ── Success — save session & redirect ────────────────
+            setFieldValid(emailEl);
+            setFieldValid(passEl);
+            localStorage.setItem('cineflow_user', JSON.stringify({ name: account.name, email: account.email }));
+
+            const btn = document.getElementById('loginBtn');
+            btn.classList.add('loading');
+            showToast(`Welcome back, ${account.name.split(' ')[0]}! 🎬`);
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                window.location.href = 'index.html';
+            }, 1600);
+        }
+
+        function handleRegister() {
+            const nameEl = document.getElementById('reg-name');
+            const emailEl = document.getElementById('reg-email');
+            const passEl = document.getElementById('reg-pass');
+            let valid = true;
+
+            clearFieldError(nameEl);
+            clearFieldError(emailEl);
+            clearFieldError(passEl);
+
+            // Name
+            if (!nameEl.value.trim()) {
+                setFieldError(nameEl, 'Full name is required');
+                valid = false;
+            } else {
+                setFieldValid(nameEl);
+            }
+
+            // Email format
+            if (!emailEl.value.trim()) {
+                setFieldError(emailEl, 'Email address is required');
+                valid = false;
+            } else if (!isValidEmail(emailEl.value.trim())) {
+                setFieldError(emailEl, 'Please enter a valid email (e.g. you@mail.com)');
+                valid = false;
+            } else {
+                setFieldValid(emailEl);
+            }
+
+            // Password
+            if (!passEl.value) {
+                setFieldError(passEl, 'Password is required');
+                valid = false;
+            } else if (passEl.value.length < 8) {
+                setFieldError(passEl, 'Password must be at least 8 characters');
+                valid = false;
+            } else {
+                setFieldValid(passEl);
+            }
+
+            if (!valid) { shakeCard(); return; }
+
+            // ── Duplicate check ───────────────────────────────────
+            if (findAccount(emailEl.value.trim())) {
+                setFieldError(emailEl, 'An account with this email already exists — please sign in');
+                shakeCard();
+                return;
+            }
+
+            // ── Save account ──────────────────────────────────────
+            const accounts = getAccounts();
+            accounts.push({
+                name: nameEl.value.trim(),
+                email: emailEl.value.trim().toLowerCase(),
+                passHash: simpleHash(passEl.value),
+                joined: new Date().toISOString()
+            });
+            saveAccounts(accounts);
+
+            const btn = document.getElementById('registerBtn');
+            btn.classList.add('loading');
+            showToast(`Account created! Welcome, ${nameEl.value.trim().split(' ')[0]} 🎉`);
+
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                // Pre-fill login email for convenience
+                const loginEmail = document.getElementById('login-email');
+                if (loginEmail) loginEmail.value = emailEl.value.trim();
+                // Clear register form
+                nameEl.value = '';
+                emailEl.value = '';
+                passEl.value = '';
+                document.getElementById('strengthFill').style.width = '0';
+                flipCard();
+            }, 1600);
+        }
+
+        function shakeCard() {
+            cardScene.style.transition = 'transform 0.08s ease';
+            let i = 0;
+            const shake = setInterval(() => {
+                cardScene.style.transform = `rotateY(180deg) translateX(${i % 2 === 0 ? 8 : -8}px)`;
+                if (++i > 5) {
+                    clearInterval(shake);
+                    cardScene.style.transform = 'rotateY(180deg) translateX(0)';
+                    cardScene.style.transition = '';
+                }
+            }, 80);
+        }
+
+        function shakeCardFront() {
+            cardScene.style.transition = 'transform 0.08s ease';
+            let i = 0;
+            const shake = setInterval(() => {
+                cardScene.style.transform = `translateX(${i % 2 === 0 ? 8 : -8}px)`;
+                if (++i > 5) {
+                    clearInterval(shake);
+                    cardScene.style.transform = '';
+                    cardScene.style.transition = '';
+                }
+            }, 80);
+        }
+
+        /* ── Film strip – regenerate so it tiles smoothly ─────────────── */
+        ['filmLeft', 'filmRight'].forEach(id => {
+            const strip = document.getElementById(id);
+            while (strip.children.length < 40) {
+                const hole = document.createElement('div');
+                hole.className = 'film-hole';
+                strip.appendChild(hole);
+            }
+        });
+    </script>
+</body>
+
+</html>
